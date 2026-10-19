@@ -48,7 +48,7 @@ export class AnthropicModelProvider implements ModelProvider {
   readonly #model: string;
   #client: Anthropic;
   #enablePromptCaching: boolean;
-  #thinkingConfig: Anthropic.ThinkingConfigParam;
+  #thinkingConfig: Anthropic.ThinkingConfigParam | undefined;
 
   constructor(options: AnthropicModelProviderOptions) {
     this.#model = options.model;
@@ -57,8 +57,15 @@ export class AnthropicModelProvider implements ModelProvider {
       baseURL: options.baseUrl,
       ...options.anthropicClientOptions,
     });
-    this.#enablePromptCaching = options.enablePromptCaching ?? true;
-    this.#thinkingConfig = options.thinkingBudget
+    // MiniMax manages prompt caching automatically and does not accept cache_control.
+    const isMiniMax = options.model === "MiniMax-M3.1-Flash" ||
+      options.model === "MiniMax-M3";
+    this.#enablePromptCaching = !isMiniMax &&
+      (options.enablePromptCaching ?? true);
+    // Flash always uses adaptive thinking; omit legacy budget/disabled settings.
+    this.#thinkingConfig = options.model === "MiniMax-M3.1-Flash"
+      ? undefined
+      : options.thinkingBudget
       ? {
         type: "enabled",
         budget_tokens: options.thinkingBudget,

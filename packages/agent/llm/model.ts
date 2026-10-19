@@ -116,7 +116,10 @@ function inferBaseUrl(model: string): string | undefined {
  * const provider = createModelProvider("deepseek-chat");              // → openai (with DeepSeek base URL)
  * const provider = createModelProvider("qwen-plus");                  // → openai (with DashScope base URL)
  * const provider = createModelProvider("grok-2");                     // → openai (with xAI base URL)
+ * const provider = createModelProvider("MiniMax-M3.1-Flash");          // → openai (with MiniMax base URL)
  * const provider = createModelProvider("MiniMax-M3");                  // → openai (with MiniMax base URL)
+ * const provider = createModelProvider("minimax-cn/MiniMax-M3.1-Flash"); // → openai (mainland China)
+ * const provider = createModelProvider("minimax-anthropic/MiniMax-M3.1-Flash"); // → anthropic (adaptive thinking)
  * const provider = createModelProvider("llama-3.3-70b");              // → openai (no default URL, self-hosted)
  *
  * // With options (API key optional - falls back to env vars)
