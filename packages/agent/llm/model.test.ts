@@ -31,7 +31,7 @@ Deno.test("MiniMax Anthropic requests preserve model-specific defaults", async (
   for (
     const model of ["MiniMax-M3.1-Flash", "MiniMax-M3", "claude-sonnet-4-5"]
   ) {
-    for (const thinkingBudget of [undefined, 1024]) {
+    for (const thinkingBudget of [undefined, 0, 1024]) {
       let body: Record<string, unknown> = {};
       using _fetch = stub(globalThis, "fetch", async (input, init) => {
         body = await new Request(input, init).json();
@@ -59,6 +59,8 @@ Deno.test("MiniMax Anthropic requests preserve model-specific defaults", async (
         body.thinking,
         model === "MiniMax-M3.1-Flash"
           ? undefined
+          : model === "MiniMax-M3" && thinkingBudget
+          ? { type: "adaptive" }
           : thinkingBudget
           ? { type: "enabled", budget_tokens: thinkingBudget }
           : { type: "disabled" },

@@ -63,14 +63,19 @@ export class AnthropicModelProvider implements ModelProvider {
     this.#enablePromptCaching = !isMiniMax &&
       (options.enablePromptCaching ?? true);
     // Flash always uses adaptive thinking; omit legacy budget/disabled settings.
-    this.#thinkingConfig = options.model === "MiniMax-M3.1-Flash"
-      ? undefined
-      : options.thinkingBudget
-      ? {
-        type: "enabled",
-        budget_tokens: options.thinkingBudget,
-      }
-      : { type: "disabled" };
+    if (options.model === "MiniMax-M3.1-Flash") {
+      this.#thinkingConfig = undefined;
+    } else if (options.model === "MiniMax-M3" && options.thinkingBudget) {
+      // M3 accepts adaptive thinking, not Claude's fixed token budget.
+      this.#thinkingConfig = {
+        // @ts-expect-error The pinned SDK predates MiniMax's adaptive thinking type.
+        type: "adaptive",
+      };
+    } else {
+      this.#thinkingConfig = options.thinkingBudget
+        ? { type: "enabled", budget_tokens: options.thinkingBudget }
+        : { type: "disabled" };
+    }
   }
 
   get info(): ProviderInfo {
